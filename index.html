@@ -1,1 +1,547 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Cérebro: Quiz de Neuroanatomia Fofo!</title>
+    <style>
+        /* --- VARIÁVEIS DE CORES E ESTILO (ANIME FOFO & ACOLHEDOR) --- */
+        :root {
+            --bg-principal: #FFF5F5;
+            --bg-card: #FFFFFF;
+            --texto-principal: #332233;
+            --texto-secundario: #554455;
+            --cor-primaria: #FF85A2; /* Rosa Anime */
+            --cor-primaria-hover: #FF6B8B;
+            --cor-acerto: #4E9F3D; /* Verde Pastel Firme */
+            --cor-erro: #D94141; /* Vermelho Alerta */
+            --borda-raio: 20px;
+            --fonte-tamanho-base: 22px;
+            --fonte-tamanho-titulo: 32px;
+            --fonte-tamanho-botao: 24px;
+        }
 
+        /* --- MODO ESCURO (ALTO CONTRASTE) --- */
+        body.dark-mode {
+            --bg-principal: #121214;
+            --bg-card: #1F1F23;
+            --texto-principal: #FFFFFF;
+            --texto-secundario: #E1E1E6;
+            --cor-primaria: #FF9EBB;
+            --cor-primaria-hover: #FF85A2;
+            --cor-acerto: #61C946;
+            --cor-erro: #FF6B6B;
+        }
+
+        /* --- RESET E ACESSIBILIDADE BÁSICA --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-principal);
+            color: var(--texto-principal);
+            font-size: var(--fonte-tamanho-base);
+            line-height: 1.6;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- CONTAINER PRINCIPAL --- */
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: var(--borda-raio);
+            box-shadow: 0 10px 30px rgba(255, 133, 162, 0.15);
+            border: 4px solid var(--cor-primaria);
+            position: relative;
+        }
+
+        body.dark-mode .container {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-color: #332233;
+        }
+
+        /* --- CONTROLES DE ACESSIBILIDADE --- */
+        .acessibilidade-menu {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn-acessibilidade {
+            background-color: var(--texto-principal);
+            color: var(--bg-card);
+            border: none;
+            padding: 12px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn-acessibilidade:hover {
+            opacity: 0.9;
+        }
+
+        /* --- COMPONENTES DO QUIZ --- */
+        .cabecalho-quiz {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: var(--fonte-tamanho-titulo);
+            color: var(--cor-primaria);
+            margin-bottom: 10px;
+        }
+
+        body.dark-mode h1 {
+            color: var(--cor-primaria);
+        }
+
+        .progresso {
+            font-weight: bold;
+            color: var(--texto-secundario);
+            background: rgba(255, 133, 162, 0.1);
+            padding: 5px 15px;
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        /* IMAGENS COGNITIVAS (Estilo Anime Fofo) */
+        .imagem-pergunta {
+            width: 100%;
+            max-height: 250px;
+            object-fit: contain;
+            border-radius: var(--borda-raio);
+            margin-bottom: 25px;
+            border: 3px dashed var(--cor-primaria);
+            background: #FFF;
+        }
+
+        .pergunta-texto {
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        /* BOTÕES DE ALTERNATIVAS (GRANDES E ESPAÇADOS) */
+        .alternativas-lista {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .btn-opcao {
+            background-color: var(--bg-card);
+            color: var(--texto-principal);
+            border: 3px solid var(--texto-principal);
+            padding: 20px 25px;
+            font-size: var(--fonte-tamanho-botao);
+            font-weight: 600;
+            border-radius: 15px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+            box-shadow: 0 6px 0 var(--texto-principal);
+            position: relative;
+            top: 0;
+        }
+
+        .btn-opcao:hover:not(:disabled) {
+            background-color: rgba(255, 133, 162, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 var(--texto-principal);
+        }
+
+        .btn-opcao:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 var(--texto-principal);
+        }
+
+        /* ESTADOS DE FEEDBACK */
+        .btn-opcao.correta {
+            background-color: var(--cor-acerto) !important;
+            color: white !important;
+            border-color: #2E6F25 !important;
+            box-shadow: 0 4px 0 #2E6F25 !important;
+        }
+
+        .btn-opcao.errada {
+            background-color: var(--cor-erro) !important;
+            color: white !important;
+            border-color: #992626 !important;
+            box-shadow: 0 4px 0 #992626 !important;
+        }
+
+        .btn-opcao:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* CAIXA DE EXPLICAÇÃO SIMPLES */
+        .feedback-caixa {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 15px;
+            border: 3px solid var(--texto-principal);
+            background-color: #E8F4F8;
+            color: #113344;
+            display: none;
+        }
+
+        body.dark-mode .feedback-caixa {
+            background-color: #24333C;
+            color: #E1F1F7;
+        }
+
+        .feedback-titulo {
+            font-weight: bold;
+            font-size: 24px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* BOTÃO AVANÇAR */
+        .btn-proxima {
+            display: none;
+            width: 100%;
+            background-color: var(--cor-primaria);
+            color: white;
+            border: 3px solid var(--texto-principal);
+            padding: 20px;
+            font-size: var(--fonte-tamanho-botao);
+            font-weight: bold;
+            border-radius: 15px;
+            cursor: pointer;
+            margin-top: 25px;
+            box-shadow: 0 6px 0 var(--texto-principal);
+            text-align: center;
+        }
+
+        .btn-proxima:hover {
+            background-color: var(--cor-primaria-hover);
+        }
+
+        /* TELA DE RESULTADOS */
+        .tela-resultado {
+            text-align: center;
+            display: none;
+        }
+
+        .mensagem-vitoria {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--cor-primaria);
+            margin-bottom: 20px;
+        }
+
+        .pontuacao-destaque {
+            font-size: 48px;
+            font-weight: 900;
+            margin: 20px 0;
+            color: var(--texto-principal);
+        }
+
+        /* RESPONSIVIDADE */
+        @media (max-width: 600px) {
+            :root {
+                --fonte-tamanho-base: 18px;
+                --fonte-tamanho-titulo: 26px;
+                --fonte-tamanho-botao: 20px;
+            }
+            .container {
+                padding: 20px;
+            }
+            .btn-opcao {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="som-clique" src="assets/audio/clique.mp3" preload="auto"></audio>
+    <audio id="som-sucesso" src="assets/audio/sucesso.mp3" preload="auto"></audio>
+    <audio id="som-erro" src="assets/audio/erro.mp3" preload="auto"></audio>
+    <audio id="som-vitoria" src="assets/audio/vitoria.mp3" preload="auto"></audio>
+
+    <div class="container" role="main">
+        
+        <div class="acessibilidade-menu">
+            <button class="btn-acessibilidade" onclick="alternarModoEscuro()" aria-label="Alternar entre modo claro e escuro">🌓 Modo Escuro</button>
+            <button class="btn-acessibilidade" onclick="ajustarFonte(1)" aria-label="Aumentar o tamanho da letra">A+</button>
+            <button class="btn-acessibilidade" onclick="ajustarFonte(-1)" aria-label="Diminuir o tamanho da letra">A-</button>
+        </div>
+
+        <div id="bloco-quiz">
+            <div class="cabecalho-quiz">
+                <h1>Desafio do Cérebro Saudável 🧠✨</h1>
+                <div class="progresso" id="texto-progresso">Pergunta 1 de 10</div>
+            </div>
+
+            <img id="imagem-pergunta" class="imagem-pergunta" src="assets/img/cerebro_feliz.png" alt="Desenho fofo de um cérebro sorrindo">
+
+            <div class="pergunta-texto" id="texto-pergunta">Carregando pergunta...</div>
+
+            <div class="alternativas-lista" id="lista-opcoes" role="group" aria-label="Alternativas de resposta">
+                </div>
+
+            <div class="feedback-caixa" id="caixa-feedback" aria-live="polite">
+                <div class="feedback-titulo" id="titulo-feedback"></div>
+                <p id="texto-explicacao"></p>
+            </div>
+
+            <button class="btn-proxima" id="btn-proxima" onclick="proximaPergunta()">Avançar para a próxima ➡️</button>
+        </div>
+
+        <div id="bloco-resultado" class="tela-resultado">
+            <h1>Parabéns por exercitar sua mente! 🎉</h1>
+            <img src="assets/img/vitoria.png" alt="Mascote anime comemorando" class="imagem-pergunta" style="max-height: 200px;">
+            <p class="mensagem-vitoria" id="mensagem-final">Você concluiu o nosso desafio de neuroanatomia!</p>
+            <div class="pontuacao-destaque" id="pontuacao-final">0 / 10</div>
+            <p style="margin-bottom: 30px;">Manter o cérebro ativo aprendendo coisas novas é o melhor segredo para a longevidade!</p>
+            <button class="btn-proxima" style="display: block;" onclick="reiniciarQuiz()">🔄 Jogar Novamente</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- BANCO DE DADOS DAS PERGUNTAS (Linguagem Simples & Acessível) ---
+        const perguntas = [
+            {
+                pergunta: "Qual é a parte do nosso corpo responsável por comandar os pensamentos, memórias e sentimentos?",
+                imagem: "assets/img/pensando.png",
+                alt: "Desenho fofo mostrando a cabeça com engrenagens coloridas e flores",
+                opcoes: ["O Coração", "O Cérebro", "Os Pulmões", "Os Estômagos"],
+                correta: 1,
+                explicacao: "O Cérebro é o nosso grande computador central! É ele quem guarda as lembranças dos netos, planeja o dia e sente as emoções."
+            },
+            {
+                pergunta: "O cérebro é dividido em duas partes principais, chamadas de 'hemisférios'. Quantas partes são?",
+                imagem: "assets/img/lados_cerebro.png",
+                alt: "Desenho do cérebro dividido ao meio em duas metades coloridas",
+                opcoes: ["Apenas 1 parte", "2 partes (Direita e Esquerda)", "4 partes separadas", "10 partes pequenas"],
+                correta: 1,
+                explicacao: "Temos 2 lados! O lado esquerdo costuma cuidar mais da fala e das contas, enquanto o direito é o nosso lado artista e criativo."
+            },
+            {
+                pergunta: "Qual parte do cérebro, localizada logo atrás da nossa testa, nos ajuda a tomar decisões e planejar o futuro?",
+                imagem: "assets/img/frontal.png",
+                alt: "Destaque na parte da frente do cérebro, na região da testa",
+                opcoes: ["Lóbulo Frontal (na testa)", "Nuca", "Orelha", "Cerebelo"],
+                correta: 0,
+                explicacao: "O Lóbulo Frontal fica bem na frente! É a parte que usamos quando escolhemos uma roupa ou decidimos uma receita."
+            },
+            {
+                pergunta: "Como se chamam as 'células mensageiras' do cérebro que conversam entre si para podermos nos mexer e pensar?",
+                imagem: "assets/img/neuronio.png",
+                alt: "Desenho animado de uma célula em formato de estrela piscando sorridente",
+                opcoes: ["Músculos", "Glóbulos de sangue", "Neurônios", "Ossos"],
+                correta: 2,
+                explicacao: "Os Neurônios são as estrelinhas do nosso cérebro. Eles dão as mãos uns aos outros para passar as informações super rápido!"
+            },
+            {
+                pergunta: "Quando você caminha no parque ou segura uma xícara sem derrubar, qual parte do cérebro ajuda no seu equilíbrio?",
+                imagem: "assets/img/equilibrio.png",
+                alt: "Mascote se equilibrando de forma fofa em cima de uma linha",
+                opcoes: ["O Nariz", "O Cerebelo (atrás da cabeça)", "Os Olhos", "As Unhas"],
+                correta: 1,
+                explicacao: "O Cerebelo funciona como o mestre do equilíbrio do nosso corpo. É graças a ele que conseguimos andar com firmeza."
+            },
+            {
+                pergunta: "Qual sentido do corpo nos ajuda a reconhecer o cheirinho de um café fresco ou de um bolo saindo do forno?",
+                imagem: "assets/img/olfato.png",
+                alt: "Nariz fofo sentindo o aroma gostoso que sai de uma xícara",
+                opcoes: ["A Visão", "A Audição", "O Olfato (Nariz)", "O Tato"],
+                correta: 2,
+                explicacao: "O Olfato capta os cheiros e envia sinais direto para o cérebro, despertando memórias deliciosas do passado."
+            },
+            {
+                pergunta: "Para o cérebro continuar forte, saudável e com boa memória, qual desses hábitos é o mais recomendado?",
+                imagem: "assets/img/vida_saudavel.png",
+                alt: "Cérebro feliz fazendo caminhada e comendo uma maçã",
+                opcoes: ["Ficar no sofá o dia todo", "Dormir pouco à noite", "Apenas comer doces", "Ter uma boa noite de sono e caminhar"],
+                correta: 3,
+                explicacao: "Dormir bem limpa as impurezas do cérebro, e os exercícios físicos ajudam a levar sangue fresco e oxigênio para ele!"
+            },
+            {
+                pergunta: "Onde fica guardada a maior parte das nossas memórias antigas e aprendizados de toda a vida?",
+                imagem: "assets/img/memoria.png",
+                alt: "Baú de tesouro brilhando com fotos e corações dentro",
+                opcoes: ["No próprio Cérebro", "Nos Pés", "Nas Costas", "Nos Joelhos"],
+                correta: 0,
+                explicacao: "O cérebro funciona como um arquivo gigante de memórias. Tudo o que você viveu está guardadinho nele."
+            },
+            {
+                pergunta: "Qual estrutura protege o nosso cérebro contra batidas e impactos no dia a dia?",
+                imagem: "assets/img/cranio.png",
+                alt: "Desenho de um capacete protetor brilhante ao redor da cabeça",
+                opcoes: ["A pele dos braços", "O osso do Crânio (a cabeça)", "O cabelo", "O chapéu"],
+                correta: 1,
+                explicacao: "O Crânio é uma caixinha de osso muito forte que serve como um capacete natural para proteger o nosso precioso cérebro."
+            },
+            {
+                pergunta: "Aprender coisas novas, como jogar um jogo diferente ou ler, faz o que com o nosso cérebro?",
+                imagem: "assets/img/cerebro_forte.png",
+                alt: "Cérebro forte mostrando os músculos com expressão alegre",
+                opcoes: ["Deixa ele cansado e fraco", "Não faz diferença nenhuma", "Deixa ele mais forte, jovem e conectado", "Faz esquecer as coisas"],
+                correta: 2,
+                explicacao: "Sempre que aprendemos algo novo, criamos novas pontes no cérebro. Isso se chama neuroplasticidade: seu cérebro jovem para sempre!"
+            }
+        ];
+
+        // --- ESTADO DA APLICAÇÃO ---
+        let perguntaAtual = 0;
+        let pontuacao = 0;
+        let tamanhoFonteAtual = 22;
+
+        // --- REFERÊNCIAS DOS ELEMENTOS ---
+        const elementoPerguntaTexto = document.getElementById("texto-pergunta");
+        const elementoListaOpcoes = document.getElementById("lista-opcoes");
+        const elementoProgresso = document.getElementById("texto-progresso");
+        const elementoImagem = document.getElementById("imagem-pergunta");
+        const elementoCaixaFeedback = document.getElementById("caixa-feedback");
+        const elementoTituloFeedback = document.getElementById("titulo-feedback");
+        const elementoTextoExplicacao = document.getElementById("texto-explicacao");
+        const elementoBtnProxima = document.getElementById("btn-proxima");
+        const blocoQuiz = document.getElementById("bloco-quiz");
+        const blocoResultado = document.getElementById("bloco-resultado");
+        const elementoPontuacaoFinal = document.getElementById("pontuacao-final");
+
+        // --- FUNÇÕES DE ÁUDIO (Tratadas para navegadores modernos) ---
+        function tocarSom(idSom) {
+            const som = document.getElementById(idSom);
+            if (som) {
+                som.currentTime = 0;
+                som.play().catch(e => console.log("Áudio aguardando interação do usuário."));
+            }
+        }
+
+        // --- CARREGAR QUESTÃO ---
+        function carregarQuestao() {
+            // Resetar estados visuais
+            elementoCaixaFeedback.style.display = "none";
+            elementoBtnProxima.style.display = "none";
+            
+            let q = perguntas[perguntaAtual];
+            
+            // Atualizar textos e imagem
+            elementoProgresso.innerText = `Pergunta ${perguntaAtual + 1} de ${perguntas.length}`;
+            elementoPerguntaTexto.innerText = q.pergunta;
+            elementoImagem.src = q.imagem;
+            elementoImagem.alt = q.alt;
+
+            // Limpar e criar botões de opções
+            elementoListaOpcoes.innerHTML = "";
+            q.opcoes.forEach((opcao, indice) => {
+                const botao = document.createElement("button");
+                botao.classList.add("btn-opcao");
+                botao.innerText = opcao;
+                botao.setAttribute("role", "button");
+                botao.onclick = () => verificarResposta(indice, botao);
+                elementoListaOpcoes.appendChild(botao);
+            });
+        }
+
+        // --- VERIFICAR RESPOSTA ---
+        function verificarResposta(indiceSelecionado, botaoClicado) {
+            tocarSom("som-clique");
+            let q = perguntas[perguntaAtual];
+            const todosBotoes = elementoListaOpcoes.querySelectorAll(".btn-opcao");
+
+            // Desabilitar todos após o clique
+            todosBotoes.forEach(b => b.disabled = true);
+
+            if (indiceSelecionado === q.correta) {
+                // ACERTO
+                botaoClicado.classList.add("correta");
+                elementoTituloFeedback.innerHTML = "🌟 Muito bem! Você acertou!";
+                elementoTituloFeedback.style.color = "var(--cor-acerto)";
+                pontuacao++;
+                tocarSom("som-sucesso");
+            } else {
+                // ERRO
+                botaoClicado.classList.add("errada");
+                todosBotoes[q.correta].classList.add("correta"); // Mostra a certa
+                elementoTituloFeedback.innerHTML = "💡 Quase lá! Veja a explicação:";
+                elementoTituloFeedback.style.color = "var(--cor-erro)";
+                tocarSom("som-erro");
+            }
+
+            // Exibir Explicação Simplificada
+            elementoTextoExplicacao.innerText = q.explicacao;
+            elementoCaixaFeedback.style.display = "block";
+            elementoBtnProxima.style.display = "block";
+            elementoBtnProxima.focus(); // Foco no avançar para acessibilidade por teclado
+        }
+
+        // --- AVANÇAR ---
+        function proximaPergunta() {
+            tocarSom("som-clique");
+            perguntaAtual++;
+            if (perguntaAtual < perguntas.length) {
+                carregarQuestao();
+            } else {
+                mostrarResultadoFinal();
+            }
+        }
+
+        // --- TELA FINAL ---
+        function mostrarResultadoFinal() {
+            blocoQuiz.style.display = "none";
+            blocoResultado.style.display = "block";
+            elementoPontuacaoFinal.innerText = `${pontuacao} de ${perguntas.length}`;
+            tocarSom("som-vitoria");
+        }
+
+        // --- REINICIAR QUIZ ---
+        function reiniciarQuiz() {
+            tocarSom("som-clique");
+            perguntaAtual = 0;
+            pontuacao = 0;
+            blocoResultado.style.display = "none";
+            blocoQuiz.style.display = "block";
+            carregarQuestao();
+        }
+
+        // --- ACESSIBILIDADE: MODO ESCURO ---
+        function alternarModoEscuro() {
+            tocarSom("som-clique");
+            document.body.classList.toggle("dark-mode");
+        }
+
+        // --- ACESSIBILIDADE: CONTROLE DE FONTE ---
+        function ajustarFonte(direcao) {
+            tocarSom("som-clique");
+            tamanhoFonteAtual += (direcao * 2);
+            // Limites saudáveis de tamanho
+            if(tamanhoFonteAtual < 18) tamanhoFonteAtual = 18;
+            if(tamanhoFonteAtual > 32) tamanhoFonteAtual = 32;
+            
+            document.documentElement.style.setProperty('--fonte-tamanho-base', tamanhoFonteAtual + 'px');
+            document.documentElement.style.setProperty('--fonte-tamanho-botao', (tamanhoFonteAtual + 2) + 'px');
+        }
+
+        // Iniciar o jogo assim que a página carregar
+        window.onload = carregarQuestao;
+    </script>
+</body>
+</html>
